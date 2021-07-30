@@ -1,0 +1,49 @@
+/*
+ * Copyright 2021 Dynatrace LLC
+ *
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+plugins {
+    id "application"
+}
+
+repositories {
+    mavenCentral()
+}
+
+mainClassName = 'com.dynatrace.example.AppWithOpenTelemetry'
+version = "0.0.1"
+
+def otelVersion = '1.4.+'
+def log4jVersion = "2.14.+"
+
+dependencies {
+    // Log4j dependencies
+    implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
+    implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+
+    // OpenTelemetry dependencies. Not neccesary to specify, since they are pulled in by
+    // opentelemetry-exporter-logging, but that will not usually be the case in production projects.
+    implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")
+    implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
+
+    // The OpenTelemetry Logging exporter is used to log spans in this example app
+    // instead of sending them to a backend.
+    implementation("io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}")
+
+    // Dependency to the Dynatrace Metadata ContextDataProvider.
+    runtimeOnly(project(':lib'))
+
+    // Required for Log4j JSON output. Can be removed if not logging to JSON.
+    runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.+')
+}

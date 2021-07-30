@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="span.id">
+            <!-- span.id default. Leave empty to only add the span.id property to the json if it exists. -->
+        </Property>
+        <Property name="trace.id">
+            <!-- trace.id default. Leave empty to only add the trace.id property to the json if it exists. -->
+        </Property>
+        <Property name="dt.entity.process_group_instance">
+            <!-- dt.entity.process_group_instance default. Leave empty to only add the dt.entity.process_group_instance property to the json if it exists. -->
+        </Property>
+        <Property name="dt.entity.host">
+            <!-- dt.entity.host default. Leave empty to only add the dt.entity.host property to the json if it exists. -->
+        </Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <JsonLayout>
+                <!-- It's also possible to specify key value pairs explicitly. They will be added to the JSON object (at the top level). -->
+                <KeyValuePair key="trace.id" value="$${ctx:trace.id}"/>
+                <KeyValuePair key="span.id" value="$${ctx:span.id}"/>
+                <KeyValuePair key="dt.entity.process_group_instance" value="$${ctx:dt.entity.process_group_instance}"/>
+                <KeyValuePair key="dt.entity.host" value="$${ctx:dt.entity.host}"/>
+            </JsonLayout>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" level="All"/>
+        </Root>
+    </Loggers>
+</Configuration>

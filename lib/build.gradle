@@ -1,0 +1,49 @@
+/*
+ * Copyright 2021 Dynatrace LLC
+ *
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenCentral()
+}
+
+group = 'com.dynatrace.logs.log4j'
+version = '0.0.1'
+
+def otelVersion = '1.+'
+
+// ContextDataProvider was introduced in log42 v2.13.2.
+// Therefore, use any version from (and including) 2.13.2 can be used
+def log4jVersion = '[2.13.2, )'
+
+dependencies {
+    implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    // This util library allows gathering Dynatrace metadata.
+    implementation("com.dynatrace.metric.util:dynatrace-metric-utils-java:1.1.+")
+
+    // OpenTelemetry data will only be exported if the OpenTelemetry dependency is available in the
+    // project depending on this extension.
+    compileOnly("io.opentelemetry:opentelemetry-api:${otelVersion}")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
+    testImplementation(platform("org.junit:junit-bom:5.7.2"))
+    testImplementation("org.assertj:assertj-core:3.20.2")
+    testImplementation("io.opentelemetry:opentelemetry-sdk-testing:${otelVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
