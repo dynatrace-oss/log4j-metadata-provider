@@ -13,7 +13,7 @@
  *
  */
 
-package com.dynatrace.logs.log4j.v2_14_1;
+package com.dynatrace.logs.log4j.v2;
 
 import com.dynatrace.metric.util.DynatraceMetadataEnricherWrapper;
 import io.opentelemetry.api.trace.Span;
@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DynatraceMetadataContextExporter implements ContextDataProvider {
+    private final Map<String, String> dynatraceMetadata;
     private final boolean provideOpenTelemetryMetadata;
-    private final boolean provideDynatraceMetadata;
 
     public static final String TRACE_ID = "trace_id";
     public static final String SPAN_ID = "span_id";
@@ -34,48 +34,42 @@ public class DynatraceMetadataContextExporter implements ContextDataProvider {
 
     // export all metadata by default
     public DynatraceMetadataContextExporter() {
+        // TODO: figure out a way to configure this. Maybe a .properties file?
         this(true, true);
     }
 
-    // allow to turn off opentelemetry metadata explicitly, Dynatrace metadata is still exported.
-    public DynatraceMetadataContextExporter(boolean provideOpenTelemetryMetadata) {
-        this(provideOpenTelemetryMetadata, true);
-    }
-
     // explicitly set both kinds of metadata.
-    public DynatraceMetadataContextExporter(boolean provideOpenTelemetryMetadata, boolean provideDynatraceMetadata) {
+    private DynatraceMetadataContextExporter(boolean provideOpenTelemetryMetadata, boolean provideDynatraceMetadata) {
         this.provideOpenTelemetryMetadata = provideOpenTelemetryMetadata;
-        this.provideDynatraceMetadata = provideDynatraceMetadata;
+
+        dynatraceMetadata = provideDynatraceMetadata ?
+                DynatraceMetadataEnricherWrapper.getDynatraceMetadata() : Collections.emptyMap();
     }
 
     @Override
     public Map<String, String> supplyContextData() {
         Map<String, String> contextData = new HashMap<>();
-
         if (this.provideOpenTelemetryMetadata) {
             contextData.putAll(getSpanContextData());
         }
-
-        if (this.provideDynatraceMetadata) {
-            contextData.putAll(DynatraceMetadataEnricherWrapper.getDynatraceMetadata());
+        if (!dynatraceMetadata.isEmpty()) {
+            contextData.putAll(dynatraceMetadata);
         }
-
         return contextData;
     }
 
     private Map<String, String> getSpanContextData() {
-        Span currentSpan = Span.current();
-        if (!currentSpan.getSpanContext().isValid()) {
+        SpanContext spanContext = Span.current().getSpanContext();
+        if (!spanContext.isValid()) {
             return Collections.emptyMap();
         }
 
         Map<String, String> contextData = new HashMap<>();
-        SpanContext spanContext = currentSpan.getSpanContext();
         contextData.put(TRACE_ID, spanContext.getTraceId());
         contextData.put(SPAN_ID, spanContext.getSpanId());
         contextData.put(TRACE_FLAGS, spanContext.getTraceFlags().asHex());
+
         return contextData;
     }
-
 }
 

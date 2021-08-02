@@ -15,75 +15,84 @@
 
 package com.dynatrace.example;
 
-import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.extension.annotations.SpanAttribute;
-import io.opentelemetry.extension.annotations.WithSpan;
+import io.opentelemetry.exporter.logging.LoggingSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
-import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
-import io.opentelemetry.sdk.trace.export.SpanExporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.Duration;
-import java.util.Collection;
-
 public class App {
     private static final Logger logger = LogManager.getLogger();
+    private static Tracer tracer;
+
+    public static Tracer getTracer() {
+        if (tracer == null) {
+            tracer = GlobalOpenTelemetry.getTracer("log4j-context-provider-demo", "0.0.1");
+        }
+        return tracer;
+    }
 
     public static void main(String[] args) {
-        logger.warn("before");
+        // use the Log4JSpan exporter provided here in order to log spans with log4j.
         SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
-                .addSpanProcessor(BatchSpanProcessor.builder(new SpanExporter() {
-                    @Override
-                    public CompletableResultCode export(Collection<SpanData> spans) {
-                        for (SpanData span : spans) {
-                            logger.info(span.getSpanId() + " " + span.getName());
-                        }
-                        logger.info(spans.size() + " spans active");
-                        return CompletableResultCode.ofSuccess();
-                    }
-
-                    @Override
-                    public CompletableResultCode flush() {
-                        return CompletableResultCode.ofSuccess();
-                    }
-
-                    @Override
-                    public CompletableResultCode shutdown() {
-                        return CompletableResultCode.ofSuccess();
-                    }
-
-                }).setExporterTimeout(Duration.ofSeconds(5)).build())
+                .addSpanProcessor(BatchSpanProcessor.builder(new LoggingSpanExporter()).build())
                 .build();
 
-        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder()
+        // Set up the global OpenTelemetry instance.
+        OpenTelemetrySdk.builder()
                 .setTracerProvider(sdkTracerProvider)
                 .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
                 .buildAndRegisterGlobal();
 
-        Tracer tracer = openTelemetry.getTracer("test-instrumentaiton");
-        Span span = tracer.spanBuilder("spanTest").setAttribute("spanatt", "val").startSpan();
+        // Acquire a Tracer:
+        Span span = getTracer()
+                .spanBuilder("span1")
+                .setAttribute("span_att", "att_value")
+                .startSpan();
 
-        logger.warn("with span");
+        // Set the span as the current scope, otherwise Span context information cannot be retrieved
+        // by the log4j exporter.
+        try (Scope ignored = span.makeCurrent()) {
+            logger.info("Inside the outer scope, before calling method");
+            methodGettingParentSpanFromCurrentContext();
+            methodGettingParentSpan(Span.current());
+            logger.info("Inside the outer scope, after calling method");
+        }
 
-        methodWithSpan("this is the param");
+        logger.info("Outside the scope");
         span.end();
+
         try {
+            // wait for a few seconds for the LoggingSpanExporter to export traces.
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    @WithSpan("methodWithSpanSpan")
-    public static void methodWithSpan(@SpanAttribute("param1") String param1) {
-        logger.warn("in withSpan");
+    public static void methodGettingParentSpanFromCurrentContext() {
+        Span span = getTracer().spanBuilder("methodGettingParentSpanFromCurrentContext").startSpan();
+        try (Scope ignored = span.makeCurrent()) {
+            logger.info("Inside methodGettingParentSpanFromCurrentContext");
+        } finally {
+            span.end();
+        }
+    }
+
+    public static void methodGettingParentSpan(Span parentSpan) {
+        Span span = getTracer().spanBuilder("methodGettingParentSpan").setParent(Context.current().with(parentSpan)).startSpan();
+        try (Scope ignored = span.makeCurrent()) {
+            logger.info("Inside methodGettingParentSpan");
+        } finally {
+            span.end();
+        }
     }
 }

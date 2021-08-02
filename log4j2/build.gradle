@@ -21,7 +21,8 @@ repositories {
 }
 
 dependencies {
-    implementation('org.apache.logging.log4j:log4j-core:2.+')
+    // ContextDataProvider was introduced in log42 v2.13.2.
+    implementation('org.apache.logging.log4j:log4j-core:2.13.2+')
     compileOnly('io.opentelemetry:opentelemetry-api:1.+')
     implementation('com.dynatrace.metric.util:dynatrace-metric-utils-java:1.1.+')
 }
