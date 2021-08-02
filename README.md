@@ -17,7 +17,7 @@ There, the `<PatternLayout>` tag can be used to specify the log line layout.
 
 ## Configuration
 
-Configure your logs via the `log4j.xml` file:
+Configure your log output via the `log4j2.xml` file:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
