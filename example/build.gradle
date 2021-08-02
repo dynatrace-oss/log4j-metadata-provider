@@ -13,7 +13,6 @@
  *
  */
 
-
 plugins {
     id "application"
 }
@@ -23,17 +22,22 @@ repositories {
 }
 
 mainClassName = 'com.dynatrace.example.App'
+version = "0.0.1"
+
 def otelVersion = '1.+'
 
 dependencies {
+    // Log4j dependencies
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
 
+    // OpenTelemetry dependencies
     implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")
     implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
-    implementation("io.opentelemetry:opentelemetry-extension-annotations:${otelVersion}")
 
+    // logging exporter
     implementation("io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}")
 
+    // dependency to the Dynatrace Metadata Context exporter.
     runtimeOnly(project(':log4j2'))
 }

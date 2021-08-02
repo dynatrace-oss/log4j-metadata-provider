@@ -3,12 +3,11 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
-                    pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace_id=%X{trace_id} span_id=%X{span_id} trace_flags=%X{trace_flags} - %msg%n"/>
-<!--            pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X - %msg%n"/>-->
+                    pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="debug">
+        <Root level="info">
             <AppenderRef ref="Console" level="All"/>
         </Root>
     </Loggers>

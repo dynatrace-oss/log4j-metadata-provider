@@ -72,6 +72,7 @@ public class App {
 
         try {
             // wait for a few seconds for the LoggingSpanExporter to export traces.
+            // This will simply export the traces as log lines
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
