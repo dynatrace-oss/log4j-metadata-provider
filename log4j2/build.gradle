@@ -28,6 +28,16 @@ def log4jVersion = '[2.13.2, )'
 
 dependencies {
     implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    implementation("org.junit.jupiter:junit-jupiter:5.4.2")
     compileOnly("io.opentelemetry:opentelemetry-api:${otelVersion}")
     implementation("com.dynatrace.metric.util:dynatrace-metric-utils-java:1.1.+")
+
+
+    testImplementation(platform("org.junit:junit-bom:5.7.2"))
+    testImplementation("org.assertj:assertj-core:3.20.2")
+    testImplementation("io.opentelemetry:opentelemetry-sdk-testing:${otelVersion}")
+}
+
+test {
+    useJUnitPlatform()
 }

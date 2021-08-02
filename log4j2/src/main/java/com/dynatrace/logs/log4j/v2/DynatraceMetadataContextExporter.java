@@ -34,16 +34,14 @@ public class DynatraceMetadataContextExporter implements ContextDataProvider {
 
     // export all metadata by default
     public DynatraceMetadataContextExporter() {
-        // TODO: figure out a way to configure this. Maybe a .properties file?
-        this(true, true);
+        // TODO: figure out a way to configure what metadata should be exported. Maybe a .properties file?
+        this(true, DynatraceMetadataEnricherWrapper.getDynatraceMetadata());
     }
 
-    // explicitly set both kinds of metadata.
-    private DynatraceMetadataContextExporter(boolean provideOpenTelemetryMetadata, boolean provideDynatraceMetadata) {
+    // VisibleForTesting
+    DynatraceMetadataContextExporter(boolean provideOpenTelemetryMetadata, Map<String, String> dynatraceMetadata) {
         this.provideOpenTelemetryMetadata = provideOpenTelemetryMetadata;
-
-        dynatraceMetadata = provideDynatraceMetadata ?
-                DynatraceMetadataEnricherWrapper.getDynatraceMetadata() : Collections.emptyMap();
+        this.dynatraceMetadata = dynatraceMetadata;
     }
 
     @Override
