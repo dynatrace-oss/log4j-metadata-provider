@@ -25,11 +25,12 @@ mainClassName = 'com.dynatrace.example.App'
 version = "0.0.1"
 
 def otelVersion = '1.+'
+def log4jVersion = "2.14.+"
 
 dependencies {
     // Log4j dependencies
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
+    implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
 
     // OpenTelemetry dependencies
     implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")

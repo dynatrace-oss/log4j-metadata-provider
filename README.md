@@ -6,9 +6,14 @@ More information can be found on [the Log4j website](https://logging.apache.org/
 
 ## Installation
 
-In order to add Metadata to Log4j log lines, include the following dependency:
+In order to add Metadata to Log4j log lines, include the following dependencies:
 
 ```groovy
+// Depend on log4j itself, this is probably already in your project.
+// The mechanism that is used in this libraray works from v2.13.2
+implementation("org.apache.logging.log4j:log4j-api:2.14.1")
+implementation("org.apache.logging.log4j:log4j-core:2.14.1")
+
 runtimeOnly("log4j-metadata-provider:log4j2")
 ```
 
