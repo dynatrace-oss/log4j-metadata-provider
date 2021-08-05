@@ -38,7 +38,8 @@ dependencies {
     implementation("com.dynatrace.metric.util:dynatrace-metric-utils-java:1.1.+")
 
     // opentelemetry api is used only if opentelemetry support is requested.
-    openTelemetrySupportApi("io.opentelemetry:opentelemetry-api:${otelVersion}")
+//    openTelemetrySupportApiElements("io.opentelemetry:opentelemetry-api:${otelVersion}")
+    compileOnly("io.opentelemetry:opentelemetry-api:${otelVersion}")
 
     // this dependency is required twice, once as compileOnly, and once for the tests.\
     // Both of them could be replaced by a single 'implementation'

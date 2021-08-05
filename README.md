@@ -66,7 +66,7 @@ a `PatternLayout` like this:
 cloud lead to a log line like this:
 
 ```text
-16:54:10.581 [main] INFO  com.dynatrace.example.App {dt.some.property=some_prop_value} - Your log message would appear here.
+16:54:10.581 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.some.property=some_prop_value} - Your log message would appear here.
 ```
 
 #### Access individual properties
@@ -81,7 +81,7 @@ More information on lookups can be found [here](https://logging.apache.org/log4j
 Would lead to a log line like this:
 
 ```text
-16:57:10.449 [main] INFO  com.dynatrace.example.App dt.some.property=some_prop_value - Your log message would appear here.
+16:57:10.449 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry dt.some.property=some_prop_value - Your log message would appear here.
 ```
 
 Note, that in this example, the property name string (`dt.some.property`) is explicitly specified in front of the `%X{dt.some.property}` directive.
@@ -100,7 +100,7 @@ If a Span context is active, and a message is logged with `%X` specified in the 
 Note that the attributes are enclosed in curly braces, separated by a comma and a space.
 
 ```text
-17:14:40.584 [main] INFO  com.dynatrace.example.App {dt.some.property=some_prop_value, span_id=daf44afb5e37500a, trace_flags=01, trace_id=4446b5923aa0b22ab7da0648ae17dd33} - Your log message would appear here.
+17:14:40.584 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.some.property=some_prop_value, span_id=daf44afb5e37500a, trace_flags=01, trace_id=4446b5923aa0b22ab7da0648ae17dd33} - Your log message would appear here.
 ```
 
 It is also possible to specifically name all the properties explicitly:
@@ -112,5 +112,5 @@ It is also possible to specifically name all the properties explicitly:
 would serialize as:
 
 ```text
-17:19:43.333 [main] INFO  com.dynatrace.example.App trace_id=9c50ab1d03d1f5bf0d44e8067c4a885a span_id=dbbc65db11f6c27e trace_flags=01 dt.some.property=some_prop_value - Your log message would appear here.
+17:19:43.333 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace_id=9c50ab1d03d1f5bf0d44e8067c4a885a span_id=dbbc65db11f6c27e trace_flags=01 dt.some.property=some_prop_value - Your log message would appear here.
 ```

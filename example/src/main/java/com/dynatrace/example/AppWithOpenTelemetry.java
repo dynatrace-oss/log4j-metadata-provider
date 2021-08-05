@@ -29,7 +29,7 @@ import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class App {
+public class AppWithOpenTelemetry {
     private static final Logger logger = LogManager.getLogger();
     private static Tracer tracer;
 

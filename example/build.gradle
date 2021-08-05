@@ -21,7 +21,7 @@ repositories {
     mavenCentral()
 }
 
-mainClassName = 'com.dynatrace.example.App'
+mainClassName = 'com.dynatrace.example.AppWithoutOpenTelemetry'
 version = "0.0.1"
 
 def otelVersion = '1.+'
@@ -33,8 +33,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
 
     // OpenTelemetry dependencies
-    implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")
-    implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
+//    implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")
+//    implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
 
     // logging exporter
     implementation("io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}")
