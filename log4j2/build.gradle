@@ -14,6 +14,13 @@
  */
 plugins {
     id 'java-library'
+    id 'maven-publish'
+}
+
+java {
+    registerFeature('openTelemetrySupport') {
+        usingSourceSet(sourceSets.main)
+    }
 }
 
 repositories {
@@ -28,9 +35,10 @@ def log4jVersion = '[2.13.2, )'
 
 dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${log4jVersion}")
-    compileOnly("io.opentelemetry:opentelemetry-api:${otelVersion}")
     implementation("com.dynatrace.metric.util:dynatrace-metric-utils-java:1.1.+")
 
+    // opentelemetry api is used only if opentelemetry support is requested.
+    openTelemetrySupportApi("io.opentelemetry:opentelemetry-api:${otelVersion}")
 
     // this dependency is required twice, once as compileOnly, and once for the tests.\
     // Both of them could be replaced by a single 'implementation'
@@ -44,3 +52,27 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+
+group = 'org.example'
+version = '1.0'
+
+// TODO:
+publishing {
+    publications {
+        myLibrary(MavenPublication) {
+            from components.java
+            groupId = 'com.dynatrace.logs.log4j'
+            artifactId = 'log4j2'
+            version = '0.1.2'
+        }
+    }
+
+    repositories {
+        mavenLocal()
+//                { name = 'myRepo'
+//            url = layout.buildDirectory.dir("repo")
+//        }
+    }
+}
+
