@@ -36,11 +36,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DynatraceMetadataContextExporterTest {
+class DynatraceMetadataContextDataProviderTest {
     private static Tracer tracer;
     private static final InMemorySpanExporter inMemorySpanExporter = InMemorySpanExporter.create();
-    private static final IContextDataProvider openTelemetrySupport =
-            new OpenTelemetrySpanContextDataProvider();
+    private static final IContextDataRetriever openTelemetrySupport =
+            new OpenTelemetrySpanContextDataRetriever();
 
     @BeforeAll
     static void setupTests() {
@@ -63,7 +63,7 @@ class DynatraceMetadataContextExporterTest {
 
     @Test
     void testContextEmptyWhenUsingNoSpan() {
-        DynatraceMetadataContextExporter exporter = new DynatraceMetadataContextExporter(
+        DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(
                 openTelemetrySupport, Collections.emptyMap());
         assertThat(exporter.supplyContextData()).isEmpty();
     }
@@ -73,14 +73,14 @@ class DynatraceMetadataContextExporterTest {
         Map<String, String> dynatraceMetadata = new HashMap<>();
         dynatraceMetadata.put("dt.some.meta", "some_value");
         dynatraceMetadata.put("dt.some.other.meta", "some_other_value");
-        DynatraceMetadataContextExporter exporter = new DynatraceMetadataContextExporter(
+        DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(
                 openTelemetrySupport, dynatraceMetadata);
         assertThat(exporter.supplyContextData()).containsExactlyInAnyOrderEntriesOf(dynatraceMetadata);
     }
 
     @Test
     void testContextIsAddedWhenUsingSpan() {
-        DynatraceMetadataContextExporter exporter = new DynatraceMetadataContextExporter(
+        DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(
                 openTelemetrySupport, Collections.emptyMap());
         Map<String, String> contextData = Collections.emptyMap();
 
@@ -95,16 +95,16 @@ class DynatraceMetadataContextExporterTest {
         assertThat(finishedSpanItems).hasSize(1);
 
         Map<String, String> expected = new HashMap<>();
-        expected.put(OpenTelemetrySpanContextDataProvider.SPAN_ID, finishedSpanItems.get(0).getSpanId());
-        expected.put(OpenTelemetrySpanContextDataProvider.TRACE_ID, finishedSpanItems.get(0).getTraceId());
-        expected.put(OpenTelemetrySpanContextDataProvider.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
+        expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
+        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, finishedSpanItems.get(0).getTraceId());
+        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
     }
 
     @Test
     void testContextIsNotUsedWhenUsingSpanButNoScope() {
-        DynatraceMetadataContextExporter exporter = new DynatraceMetadataContextExporter(
+        DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(
                 openTelemetrySupport, Collections.emptyMap());
         Map<String, String> contextData = Collections.emptyMap();
 
@@ -126,7 +126,7 @@ class DynatraceMetadataContextExporterTest {
         dynatraceMetadata.put("dt.some.meta", "some_value");
         dynatraceMetadata.put("dt.some.other.meta", "some_other_value");
 
-        DynatraceMetadataContextExporter exporter = new DynatraceMetadataContextExporter(
+        DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(
                 openTelemetrySupport, dynatraceMetadata);
         Map<String, String> contextData = Collections.emptyMap();
 
@@ -141,9 +141,9 @@ class DynatraceMetadataContextExporterTest {
         assertThat(finishedSpanItems).hasSize(1);
 
         Map<String, String> expected = new HashMap<>();
-        expected.put(OpenTelemetrySpanContextDataProvider.SPAN_ID, finishedSpanItems.get(0).getSpanId());
-        expected.put(OpenTelemetrySpanContextDataProvider.TRACE_ID, finishedSpanItems.get(0).getTraceId());
-        expected.put(OpenTelemetrySpanContextDataProvider.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
+        expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
+        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, finishedSpanItems.get(0).getTraceId());
+        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
         expected.putAll(dynatraceMetadata);
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
@@ -152,10 +152,10 @@ class DynatraceMetadataContextExporterTest {
     @Test
     void testDynatraceMetadataWouldOverwriteOpenTelemetryIfTheySharedKeys() {
         Map<String, String> dynatraceMetadata = new HashMap<>();
-        dynatraceMetadata.put(OpenTelemetrySpanContextDataProvider.TRACE_ID, "some_value");
+        dynatraceMetadata.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, "some_value");
         dynatraceMetadata.put("dt.some.meta", "some_other_value");
 
-        DynatraceMetadataContextExporter exporter = new DynatraceMetadataContextExporter(openTelemetrySupport, dynatraceMetadata);
+        DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(openTelemetrySupport, dynatraceMetadata);
         Map<String, String> contextData = Collections.emptyMap();
 
         Span span = tracer.spanBuilder("span1").startSpan();
@@ -169,12 +169,12 @@ class DynatraceMetadataContextExporterTest {
         assertThat(finishedSpanItems).hasSize(1);
 
         Map<String, String> expected = new HashMap<>();
-        expected.put(OpenTelemetrySpanContextDataProvider.SPAN_ID, finishedSpanItems.get(0).getSpanId());
-        expected.put(OpenTelemetrySpanContextDataProvider.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
+        expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
+        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
         expected.putAll(dynatraceMetadata);
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
         // This is already asserted by the above, but makes it more clear to humans.
-        assertThat(contextData.get(OpenTelemetrySpanContextDataProvider.TRACE_ID)).isEqualTo("some_value");
+        assertThat(contextData.get(OpenTelemetrySpanContextDataRetriever.TRACE_ID)).isEqualTo("some_value");
     }
 }

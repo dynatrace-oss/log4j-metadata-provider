@@ -13,21 +13,10 @@
  *
  */
 
-package com.dynatrace.metric.util;
+package com.dynatrace.logs.log4j.v2;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class DynatraceMetadataEnricherWrapper {
-
-    private DynatraceMetadataEnricherWrapper() {
-    }
-
-    public static Map<String, String> getDynatraceMetadata() {
-        Map<String, String> dimensions = new HashMap<>();
-        for (Dimension dim : DynatraceMetadataEnricher.getDynatraceMetadata()) {
-            dimensions.put(dim.getKey(), dim.getValue());
-        }
-        return dimensions;
-    }
+public interface IContextDataRetriever {
+    Map<String, String> provideContextData();
 }

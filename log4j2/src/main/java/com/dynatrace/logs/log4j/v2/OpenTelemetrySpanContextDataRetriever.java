@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Dynatrace LLC
+ *
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.dynatrace.logs.log4j.v2;
 
 import io.opentelemetry.api.trace.Span;
@@ -7,13 +22,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OpenTelemetrySpanContextDataProvider implements IContextDataProvider {
+public class OpenTelemetrySpanContextDataRetriever implements IContextDataRetriever {
     public static final String TRACE_ID = "trace_id";
     public static final String SPAN_ID = "span_id";
     public static final String TRACE_FLAGS = "trace_flags";
 
 
-    public OpenTelemetrySpanContextDataProvider() {
+    public OpenTelemetrySpanContextDataRetriever() {
         // this is required, so instantiating this class throws if OpenTelemetry is not installed.
         final Span ignored = Span.getInvalid();
     }

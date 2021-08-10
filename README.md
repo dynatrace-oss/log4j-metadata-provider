@@ -17,7 +17,7 @@ implementation("org.apache.logging.log4j:log4j-core:2.14.1")
 runtimeOnly("log4j-metadata-provider:log4j2")
 ```
 
-Then, add a `log4j2.xml` configuration file to the classpath of your project (e.g. `src/main/resources`, as shown in [the example application](example)).
+Then, add a `log4j2.xml` configuration file to the classpath of your project (e.g. `src/main/resources`, as shown in the example applications [here](example_with_otel) and [here](example_without_otel)).
 There, the `<PatternLayout>` tag can be used to specify the log line layout.
 
 ## Configuration

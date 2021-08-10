@@ -24,34 +24,34 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 
-public class DynatraceMetadataContextExporter implements ContextDataProvider {
+public class DynatraceMetadataContextDataProvider implements ContextDataProvider {
     private final Map<String, String> dynatraceMetadata;
-    private final IContextDataProvider openTelemetryContextProvider;
+    private final IContextDataRetriever openTelemetryContextProvider;
 
     // using a log4j logger here can lead to an endless loop, therefore use java.util.logging.
-    private static final Logger logger = Logger.getLogger(DynatraceMetadataContextExporter.class.getName());
+    private static final Logger logger = Logger.getLogger(DynatraceMetadataContextDataProvider.class.getName());
 
 
     // export all metadata by default
-    public DynatraceMetadataContextExporter() {
-        this(DynatraceMetadataContextExporter.tryLoadOpenTelemetryTraceSupport(),
+    public DynatraceMetadataContextDataProvider() {
+        this(DynatraceMetadataContextDataProvider.tryLoadOpenTelemetryTraceSupport(),
                 DynatraceMetadataEnricherWrapper.getDynatraceMetadata());
     }
 
     // VisibleForTesting
-    DynatraceMetadataContextExporter(
-            IContextDataProvider openTelemetryContextProvider,
+    DynatraceMetadataContextDataProvider(
+            IContextDataRetriever openTelemetryContextProvider,
             Map<String, String> dynatraceMetadata
     ) {
         this.dynatraceMetadata = dynatraceMetadata;
         this.openTelemetryContextProvider = openTelemetryContextProvider;
     }
 
-    static IContextDataProvider tryLoadOpenTelemetryTraceSupport() {
+    private static IContextDataRetriever tryLoadOpenTelemetryTraceSupport() {
         try {
             logger.info("trying to load OpenTelemetry support...");
-            Class<?> clazz = Class.forName("com.dynatrace.logs.log4j.v2.OpenTelemetrySpanContextDataProvider");
-            final IContextDataProvider instance = (IContextDataProvider) clazz.getDeclaredConstructor().newInstance();
+            Class<?> clazz = Class.forName("com.dynatrace.logs.log4j.v2.OpenTelemetrySpanContextDataRetriever");
+            final IContextDataRetriever instance = (IContextDataRetriever) clazz.getDeclaredConstructor().newInstance();
             logger.info("OpenTelemetry support successfully loaded.");
             return instance;
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |

@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jar (JDK ${{ matrix.java-version }})
-          path: log4j2/build/ibs/*.jar
+          path: log4j2/build/libs/*.jar
           if-no-files-found: error
       - name: Upload unit test results
         uses: actions/upload-artifact@v2
