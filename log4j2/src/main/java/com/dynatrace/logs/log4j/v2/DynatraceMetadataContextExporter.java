@@ -28,28 +28,37 @@ public class DynatraceMetadataContextExporter implements ContextDataProvider {
     private final Map<String, String> dynatraceMetadata;
     private final IContextDataProvider openTelemetryContextProvider;
 
-    // using a log4j logger here can lead to an endless loop, since
+    // using a log4j logger here can lead to an endless loop, therefore use java.util.logging.
     private static final Logger logger = Logger.getLogger(DynatraceMetadataContextExporter.class.getName());
 
 
     // export all metadata by default
     public DynatraceMetadataContextExporter() {
-        this(DynatraceMetadataEnricherWrapper.getDynatraceMetadata());
+        this(DynatraceMetadataContextExporter.tryLoadOpenTelemetryTraceSupport(),
+                DynatraceMetadataEnricherWrapper.getDynatraceMetadata());
     }
 
     // VisibleForTesting
-    DynatraceMetadataContextExporter(Map<String, String> dynatraceMetadata) {
+    DynatraceMetadataContextExporter(
+            IContextDataProvider openTelemetryContextProvider,
+            Map<String, String> dynatraceMetadata
+    ) {
         this.dynatraceMetadata = dynatraceMetadata;
-        this.openTelemetryContextProvider = tryLoadOpenTelemetryTraceSupport();
+        this.openTelemetryContextProvider = openTelemetryContextProvider;
     }
 
-    private IContextDataProvider tryLoadOpenTelemetryTraceSupport() {
+    static IContextDataProvider tryLoadOpenTelemetryTraceSupport() {
         try {
-            logger.info("trying to ");
+            logger.info("trying to load OpenTelemetry support...");
             Class<?> clazz = Class.forName("com.dynatrace.logs.log4j.v2.OpenTelemetrySpanContextDataProvider");
-            return (IContextDataProvider) clazz.getDeclaredConstructor().newInstance();
+            final IContextDataProvider instance = (IContextDataProvider) clazz.getDeclaredConstructor().newInstance();
+            logger.info("OpenTelemetry support successfully loaded.");
+            return instance;
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
                 InstantiationException | InvocationTargetException e) {
+            logger.warning("OpenTelemetry support could not be loaded. " +
+                    "This is normal if no OpenTelemetry dependency is installed. " +
+                    "Log Context will not be enriched with OpenTelemetry metadata.");
             return null;
         }
     }

@@ -41,7 +41,6 @@ public class AppWithOpenTelemetry {
     }
 
     public static void main(String[] args) {
-        logger.info("test");
         // use the LoggingSpanExporter provided here in order to log spans (uses java.util.logging).
         SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
                 .addSpanProcessor(BatchSpanProcessor.builder(new LoggingSpanExporter()).build())
