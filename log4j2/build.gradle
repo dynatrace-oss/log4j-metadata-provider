@@ -17,12 +17,6 @@ plugins {
     id 'maven-publish'
 }
 
-java {
-    registerFeature('openTelemetrySupport') {
-        usingSourceSet(sourceSets.main)
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -34,14 +28,14 @@ def otelVersion = '1.+'
 def log4jVersion = '[2.13.2, )'
 
 dependencies {
-    compileOnly("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
     implementation("com.dynatrace.metric.util:dynatrace-metric-utils-java:1.1.+")
 
-    // opentelemetry api is used only if opentelemetry support is requested.
-//    openTelemetrySupportApiElements("io.opentelemetry:opentelemetry-api:${otelVersion}")
+    // OpenTelemetry data will only be exported if the OpenTelemetry dependency is available in the
+    // project depending on this extension.
     compileOnly("io.opentelemetry:opentelemetry-api:${otelVersion}")
 
-    // this dependency is required twice, once as compileOnly, and once for the tests.\
+    // this dependency is required twice, once as compileOnly, and once for the tests.
     // Both of them could be replaced by a single 'implementation'
     testImplementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")

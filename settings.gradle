@@ -1,7 +1,8 @@
 rootProject.name = 'log4j-metadata-provider'
 include(
         ":log4j2",
-        ":example",
+        ":example_with_otel",
+        ":example_without_otel",
 )
-include 'opentelemetry-log4j-spanexporter'
+//include 'opentelemetry-log4j-spanexporter'
 

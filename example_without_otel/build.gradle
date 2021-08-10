@@ -24,20 +24,12 @@ repositories {
 mainClassName = 'com.dynatrace.example.AppWithoutOpenTelemetry'
 version = "0.0.1"
 
-def otelVersion = '1.+'
 def log4jVersion = "2.14.+"
 
 dependencies {
     // Log4j dependencies
     implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
     implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
-
-    // OpenTelemetry dependencies
-//    implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")
-//    implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
-
-    // logging exporter
-    implementation("io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}")
 
     // dependency to the Dynatrace Metadata Context exporter.
     runtimeOnly(project(':log4j2'))
