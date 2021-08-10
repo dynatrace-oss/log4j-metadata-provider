@@ -25,8 +25,6 @@ import java.util.Map;
 public class OpenTelemetrySpanContextDataRetriever implements IContextDataRetriever {
     public static final String TRACE_ID = "trace_id";
     public static final String SPAN_ID = "span_id";
-    public static final String TRACE_FLAGS = "trace_flags";
-
 
     public OpenTelemetrySpanContextDataRetriever() {
         // this is required, so instantiating this class throws if OpenTelemetry is not installed.
@@ -43,7 +41,6 @@ public class OpenTelemetrySpanContextDataRetriever implements IContextDataRetrie
         Map<String, String> contextData = new HashMap<>();
         contextData.put(TRACE_ID, spanContext.getTraceId());
         contextData.put(SPAN_ID, spanContext.getSpanId());
-        contextData.put(TRACE_FLAGS, spanContext.getTraceFlags().asHex());
 
         return contextData;
     }

@@ -97,7 +97,6 @@ class DynatraceMetadataContextDataProviderTest {
         Map<String, String> expected = new HashMap<>();
         expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
         expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, finishedSpanItems.get(0).getTraceId());
-        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
     }
@@ -143,7 +142,6 @@ class DynatraceMetadataContextDataProviderTest {
         Map<String, String> expected = new HashMap<>();
         expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
         expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, finishedSpanItems.get(0).getTraceId());
-        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
         expected.putAll(dynatraceMetadata);
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
@@ -170,7 +168,6 @@ class DynatraceMetadataContextDataProviderTest {
 
         Map<String, String> expected = new HashMap<>();
         expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
-        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_FLAGS, finishedSpanItems.get(0).getSpanContext().getTraceFlags().asHex());
         expected.putAll(dynatraceMetadata);
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
