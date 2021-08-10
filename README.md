@@ -4,6 +4,12 @@ This utility allows for adding and formatting Dynatrace and OpenTelemetry metada
 It relies on implementing the `ContextDataProvider` interface, which is available since Log4j v2.13.2.
 More information can be found on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.html).
 
+## Requirements
+
+* Java 8 or later
+* Log4j 2, version 2.13.2 or later
+* OpenTelemetry (tested with 0.17.0, but we suggest using the latest version)
+
 ## Installation
 
 In order to add Metadata to Log4j log lines, include the following dependencies:
@@ -72,7 +78,7 @@ cloud lead to a log line like this:
 #### Access individual properties
 
 If the name of the property is known, it is also possible to access its value directly using `%X{property_name}` or with `${ctx:property_name}`.
-More information on lookups can be found [here](https://logging.apache.org/log4j/2.x/manual/lookups.html).
+More information on lookups can be found in the [Log4j documentation](https://logging.apache.org/log4j/2.x/manual/lookups.html).
 
 ```xml
 <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} dt.some.property=%X{dt.some.property} - %msg%n"/>
@@ -89,12 +95,11 @@ Otherwise, only the property value would be printed.
 
 #### Properties available from OpenTelemetry
 
-For OpenTelemetry, trace id, span id, and trace flags are read from the current span context.
+For OpenTelemetry, Trace ID and Span ID are read from the current span context.
 They can be used in the pattern using the `%X{var_name}` syntax:
 
 - Trace Id: `%X{trace_id}`
 - Span Id: `%X{span_id}`
-- Trace flags: `%X{trace_flags}`
 
 If a Span context is active, and a message is logged with `%X` specified in the `<PatternLayout>`, the resulting log line could look like this (see [this section on printing all context items](#add-all-properties)):
 Note that the attributes are enclosed in curly braces, separated by a comma and a space.
