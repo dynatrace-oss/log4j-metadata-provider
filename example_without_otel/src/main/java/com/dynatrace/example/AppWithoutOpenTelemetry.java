@@ -22,7 +22,6 @@ public class AppWithoutOpenTelemetry {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) {
-
         logger.info("This app does not use OpenTelemetry.");
     }
 }

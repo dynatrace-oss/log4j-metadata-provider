@@ -42,4 +42,7 @@ dependencies {
 
     // dependency to the Dynatrace Metadata Context exporter.
     runtimeOnly(project(':lib'))
+
+    // required for JSON output. Can be removed if not logging to JSON.
+    runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.4')
 }

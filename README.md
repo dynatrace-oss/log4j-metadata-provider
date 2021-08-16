@@ -1,8 +1,9 @@
 # Dynatrace Metadata provider for Log4j
 
 This utility allows for adding and formatting Dynatrace and OpenTelemetry metadata to Log4j output.
-It relies on implementing the `ContextDataProvider` interface, which is available since Log4j v2.13.2.
-More information can be found on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.html).
+It relies on implementing the `ContextDataProvider` interface, which is available since Log4j
+v2.13.2. More information can be found
+on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.html).
 
 ## Requirements
 
@@ -23,12 +24,180 @@ implementation("org.apache.logging.log4j:log4j-core:2.14.1")
 runtimeOnly("log4j-metadata-provider:log4j2")
 ```
 
-Then, add a `log4j2.xml` configuration file to the classpath of your project (e.g. `src/main/resources`, as shown in the example applications [here](example_with_otel) and [here](example_without_otel)).
-There, the `<PatternLayout>` tag can be used to specify the log line layout.
+Then, add a `log4j2.xml` configuration file to the classpath of your project (
+e.g. `src/main/resources`, as shown in the example applications [here](example_with_otel)
+and [here](example_without_otel)). There, the log output format can be configured, for example
+[as JSON](#json-based-logging) or in [a line format](#line-based-logging).
+
+## Properties available from OpenTelemetry
+
+For OpenTelemetry, Trace ID and Span ID are read from the current span context. They can be used in
+the pattern using the `%X{var_name}` or `$${ctx:var_name}` syntax:
+
+- Trace Id: `%X{trace.id}` / `$${ctx:trace.id}`
+- Span Id: `%X{span.id}` / `$${ctx:span.id}`
+
+In order to get access to these properties, a dependency to the OpenTelemetry project is required:
+
+```groovy
+implementation("io.opentelemetry:opentelemetry-api:1.4.+")
+implementation("io.opentelemetry:opentelemetry-sdk:1.4.+")
+```
+
+Furthermore, a Span Context has to be activated before the properties become available.
+See [the example project](./example_with_otel) for more details.
 
 ## Configuration
 
-Configure your log output via the `log4j2.xml` file:
+Configure your log output via the `log4j2.xml` file.
+
+### JSON based-logging
+
+When exporting logs as JSON, an additional dependency to Jackson databind is required:
+
+```groovy
+runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.4')
+```
+
+Then, the JSON export can be configured via the `log4j2.xml` file:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="span.id">
+            <!-- span.id default. Leave empty to only add the span.id property to the json if it exists. -->
+        </Property>
+        <Property name="trace.id">
+            <!-- trace.id default. Leave empty to only add the trace.id property to the json if it exists. -->
+        </Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <JsonLayout>
+                <!-- its also possible to specify key value pairs explicitly. They will be added to the json object (at the top level). -->
+                <!-- If the key is not present, the field will have the literal string "${ctx:trace.id}" or the default set in the Properties tag above. -->
+                <KeyValuePair key="trace.id" value="$${ctx:trace.id}"/>
+                <KeyValuePair key="span.id" value="$${ctx:span.id}"/>
+            </JsonLayout>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" level="All"/>
+        </Root>
+    </Loggers>
+</Configuration>
+```
+
+Note that only the `$${ctx:var_name}` syntax is supported here. This configuration would lead to a
+JSON like this:
+
+```json
+{
+  "instant": {
+    "epochSecond": 1629124120,
+    "nanoOfSecond": 111062046
+  },
+  "thread": "main",
+  "level": "INFO",
+  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
+  "message": "Inside the outer scope, after calling method",
+  "endOfBatch": false,
+  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
+  "threadId": 1,
+  "threadPriority": 5,
+  "trace.id": "72f7bc5cf5e63ebeebd15b81fbdb0cef",
+  "span.id": "94086666f5c61efe"
+}
+```
+
+If `trace.id` and `span.id` cannot be resolved from the context, it might look like this (with
+default properties set to the empty string, as configured above):
+
+```json
+{
+  "instant": {
+    "epochSecond": 1629124120,
+    "nanoOfSecond": 111349755
+  },
+  "thread": "main",
+  "level": "INFO",
+  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
+  "message": "Outside the scope",
+  "endOfBatch": false,
+  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
+  "threadId": 1,
+  "threadPriority": 5
+}
+```
+
+#### Details
+
+The `<Properties>` section sets up defaults for `span.id` and `trace.id`. It is possible to set a
+default by adding the respective string in the `<Property>` tag. Otherwise, when using the lookup
+notation (e.g., `$${ctx:span.id}`), if the property does not exist, the exported JSON will contain
+the line: `"span.id": "${ctx:span.id}"`, without the replaced values. When using the Properties
+section as shown, if the looked up property is not in the context, it will be omitted in the
+exported JSON. An example of missing `trace.id` and `span.id` with no default might look like this:
+
+```json
+{
+  "instant": {
+    "epochSecond": 1629124318,
+    "nanoOfSecond": 936433435
+  },
+  "thread": "main",
+  "level": "INFO",
+  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
+  "message": "Outside the scope",
+  "endOfBatch": false,
+  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
+  "threadId": 1,
+  "threadPriority": 5,
+  "trace.id": "${ctx:trace.id}",
+  "span.id": "${ctx:span.id}"
+}
+```
+
+#### Export all properties in the context
+
+It is also possible to export all properties available in the context by using:
+
+```xml
+
+<JsonLayout properties="true">
+    <!-- Optional KeyValue pairs specified explicitly, but can also be left empty. -->
+</JsonLayout>
+```
+
+All available context values will be exported as a map of key value pairs named `"contextMap"`:
+
+```json
+{
+  "instant": {
+    "epochSecond": 1629124622,
+    "nanoOfSecond": 675429690
+  },
+  "thread": "main",
+  "level": "INFO",
+  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
+  "message": "Inside the outer scope, after calling method",
+  "endOfBatch": false,
+  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
+  "contextMap": {
+    "span.id": "c70b6cbb311836db",
+    "trace.id": "d74956afbc7c1c383314893e7d33497c"
+  },
+  "threadId": 1,
+  "threadPriority": 5
+}
+```
+
+### Line-based logging
+
+Alternatively, it is possible to log the data using a line-based format, which can similarly be
+configured using the `log4j2.xml` file.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -37,7 +206,8 @@ Configure your log output via the `log4j2.xml` file:
         <!-- Log to the Console: -->
         <Console name="Console" target="SYSTEM_OUT">
             <!-- Specify the pattern layout in which log lines are serialized -->
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace_id=%X{trace_id} span_id=%X{span_id} trace_flags=%X{trace_flags} - %msg%n"/>
+            <PatternLayout
+                    pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace.id=%X{trace.id} span.id=%X{span.id} - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
@@ -49,73 +219,61 @@ Configure your log output via the `log4j2.xml` file:
 </Configuration>
 ```
 
-### Available pattern accessors
+This would lead to a log line like this:
 
-There are multiple ways of specifying metadata in the log output pattern.
+```text
+16:40:19.751 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace.id=3fcf24c4948d8f7b72414a66a751d2f9 span.id=b9ab0e913a5ee2d0 - Inside the outer scope, after calling method
+```
 
 #### Add all properties
 
-When specifying `%X` in the pattern, all available Context variables will be added in the form of `key=value` pairs inside curly braces.
+When specifying `%X` in the pattern, all available Context variables will be added in the form
+of `key=value` pairs inside curly braces.
 
-For example, if Dynatrace metadata contains a property like
-
-```properties
-dt.some.property=some_prop_value
-```
-
-a `PatternLayout` like this:
+For example, a `PatternLayout` like this:
 
 ```xml
+
 <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X - %msg%n"/>
 ```
 
-cloud lead to a log line like this:
+could lead to a log line like this if the logger is called while an OpenTelemetry trace context is
+active:
 
 ```text
-16:54:10.581 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.some.property=some_prop_value} - Your log message would appear here.
+16:42:24.168 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {span.id=69bc33e32e93652c, trace.id=3a44d41360d81f93a990885c666152b9} - Inside the outer scope, after calling method
 ```
 
 #### Access individual properties
 
-If the name of the property is known, it is also possible to access its value directly using `%X{property_name}` or with `${ctx:property_name}`.
-More information on lookups can be found in the [Log4j documentation](https://logging.apache.org/log4j/2.x/manual/lookups.html).
+If the name of the property is known, it is also possible to access its value directly
+using `%X{property_name}` or with `$${ctx:property_name}`. More information on lookups can be found
+in the [Log4j documentation](https://logging.apache.org/log4j/2.x/manual/lookups.html).
 
 ```xml
-<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} dt.some.property=%X{dt.some.property} - %msg%n"/>
+
+<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace.id=%X{trace.id} - %msg%n"/>
 ```
 
 Would lead to a log line like this:
 
 ```text
-16:57:10.449 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry dt.some.property=some_prop_value - Your log message would appear here.
+16:46:02.324 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace.id=eac920d37a4b60cc93a4ed86448ab66f - Inside the outer scope, after calling method
 ```
 
-Note, that in this example, the property name string (`dt.some.property`) is explicitly specified in front of the `%X{dt.some.property}` directive.
-Otherwise, only the property value would be printed.
+Note, that in this example, the property name string (`trace.id`) is explicitly specified in front
+of the `%X{trace.id}` directive. Otherwise, only the property value would be printed.
 
-#### Properties available from OpenTelemetry
+## Examples
 
-For OpenTelemetry, Trace ID and Span ID are read from the current span context.
-They can be used in the pattern using the `%X{var_name}` syntax:
+There are two examples, [one with OpenTelemetry](./example_with_otel) and
+[one without](./example_without_otel).
 
-- Trace Id: `%X{trace_id}`
-- Span Id: `%X{span_id}`
+The examples use two different logging frameworks: The log4j context provider uses
+`java.util.logging`, as self-referencing `log4j` can lead to difficulties configuring as well as
+endless loops upon setting up. The OpenTelemetry example uses a special kind of trace exporter,
+which also relies on `java.util.logging`. This exporter is used, since for the purpose of this
+example, there is no backend required. Therefore, the span information might be printed multiple
+times, but formatted differently. If using only the log4j output, these additional logs can be
+ignored.
 
-If a Span context is active, and a message is logged with `%X` specified in the `<PatternLayout>`, the resulting log line could look like this (see [this section on printing all context items](#add-all-properties)):
-Note that the attributes are enclosed in curly braces, separated by a comma and a space.
-
-```text
-17:14:40.584 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.some.property=some_prop_value, span_id=daf44afb5e37500a, trace_flags=01, trace_id=4446b5923aa0b22ab7da0648ae17dd33} - Your log message would appear here.
-```
-
-It is also possible to specifically name all the properties explicitly:
-
-```xml
-<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace_id=%X{trace_id} span_id=%X{span_id} trace_flags=%X{trace_flags} dt.some.property=%X{dt.some.property} - %msg%n"/>
-```
-
-would serialize as:
-
-```text
-17:19:43.333 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace_id=9c50ab1d03d1f5bf0d44e8067c4a885a span_id=dbbc65db11f6c27e trace_flags=01 dt.some.property=some_prop_value - Your log message would appear here.
-```

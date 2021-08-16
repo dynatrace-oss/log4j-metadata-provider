@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+    <Properties>
+        <!-- Default values for span and trace id left empty so they are not added if missing from the context. -->
+        <Property name="span.id"></Property>
+        <Property name="trace.id"></Property>
+    </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout
-                    pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X - %msg%n"/>
+            <JsonLayout>
+                <!-- If the key is not present in the context, the field will have the literal string "${ctx:trace.id}" or the default set in the Properties tag above. -->
+                <KeyValuePair key="trace.id" value="$${ctx:trace.id}"/>
+                <KeyValuePair key="span.id" value="$${ctx:span.id}"/>
+            </JsonLayout>
         </Console>
     </Appenders>
     <Loggers>

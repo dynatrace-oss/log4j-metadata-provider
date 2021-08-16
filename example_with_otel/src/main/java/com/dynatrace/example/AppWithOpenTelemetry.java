@@ -58,6 +58,7 @@ public class AppWithOpenTelemetry {
                 .setAttribute("span_att", "att_value")
                 .startSpan();
 
+        logger.info("Before the span is set as current");
         // Set the span as the current scope, otherwise Span context information cannot be retrieved
         // by the log4j exporter.
         try (Scope ignored = span.makeCurrent()) {
