@@ -47,7 +47,7 @@ implementation("io.opentelemetry:opentelemetry-sdk:1.4.+")
 Furthermore, a Span Context has to be activated before the properties become available.
 See [the example project](./example_with_otel) for more details.
 
-## Properties available from Dynatrace metadata
+## Properties available from Dynatrace OneAgent
 
 If there is a OneAgent running on the host, [Dynatrace metadata](https://www.dynatrace.com/support/help/how-to-use-dynatrace/metrics/metric-ingestion/ingestion-methods/enrich-metrics/) is added to the context.
 Available properties are:
