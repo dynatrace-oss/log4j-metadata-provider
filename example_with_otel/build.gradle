@@ -37,12 +37,13 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-api:${otelVersion}")
     implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
 
-    // logging exporter, pulls in opentelemetry-api and opentelemetry-sdk
+    // The OpenTelemetry Logging exporter is used to log spans in this example app
+    // instead of sending them to a backend.
     implementation("io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}")
 
     // Dependency to the Dynatrace Metadata ContextDataProvider.
     runtimeOnly(project(':lib'))
 
     // Required for Log4j JSON output. Can be removed if not logging to JSON.
-    runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.4')
+    runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.+')
 }

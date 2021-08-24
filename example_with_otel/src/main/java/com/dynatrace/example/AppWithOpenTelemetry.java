@@ -63,7 +63,7 @@ public class AppWithOpenTelemetry {
         try (Scope ignored = span.makeCurrent()) {
             logger.info("Inside the outer scope, before calling method");
             methodGettingParentSpanFromCurrentContext();
-            methodGettingParentSpan(Span.current());
+            methodGettingParentSpanExplicitly(Span.current());
             logger.info("Inside the outer scope, after calling method");
         }
 
@@ -88,7 +88,7 @@ public class AppWithOpenTelemetry {
         }
     }
 
-    public static void methodGettingParentSpan(Span parentSpan) {
+    public static void methodGettingParentSpanExplicitly(Span parentSpan) {
         Span span = getTracer().spanBuilder("methodGettingParentSpan").setParent(Context.current().with(parentSpan)).startSpan();
         try (Scope ignored = span.makeCurrent()) {
             logger.info("Inside methodGettingParentSpan");
