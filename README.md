@@ -49,7 +49,7 @@ See [the example project](./example_with_otel) for more details.
 
 ## Properties available from Dynatrace metadata
 
-If there is a OneAgent running on the host, Dynatrace metadata is added to the context.
+If there is a OneAgent running on the host, [Dynatrace metadata](https://www.dynatrace.com/support/help/how-to-use-dynatrace/metrics/metric-ingestion/ingestion-methods/enrich-metrics/) is added to the context.
 Available properties are:
 
 - Host ID: `%X{dt.entity.host}` / `$${ctx:dt.entity.host}`
@@ -79,6 +79,8 @@ Then, the JSON export can be configured via the `log4j2.xml` file:
         <Property name="trace.id">
             <!-- trace.id default. Leave empty to only add the trace.id property to the json if it exists. -->
         </Property>
+        <Property name="dt.entity.process_group_instance"></Property>
+        <Property name="dt.entity.host"></Property>
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
@@ -86,6 +88,8 @@ Then, the JSON export can be configured via the `log4j2.xml` file:
                 <!-- It's also possible to specify key value pairs explicitly. They will be added to the JSON object (at the top level). -->
                 <KeyValuePair key="trace.id" value="$${ctx:trace.id}"/>
                 <KeyValuePair key="span.id" value="$${ctx:span.id}"/>
+                <KeyValuePair key="dt.entity.process_group_instance" value="$${ctx:dt.entity.process_group_instance}"/>
+                <KeyValuePair key="dt.entity.host" value="$${ctx:dt.entity.host}"/>
             </JsonLayout>
         </Console>
     </Appenders>
@@ -102,24 +106,26 @@ JSON like this:
 
 ```json
 {
-  "instant": {
-    "epochSecond": 1629124120,
-    "nanoOfSecond": 111062046
+  "instant" : {
+    "epochSecond" : 1629820222,
+    "nanoOfSecond" : 6000000
   },
-  "thread": "main",
-  "level": "INFO",
-  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
-  "message": "Inside the outer scope, after calling method",
-  "endOfBatch": false,
-  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
-  "threadId": 1,
-  "threadPriority": 5,
-  "trace.id": "72f7bc5cf5e63ebeebd15b81fbdb0cef",
-  "span.id": "94086666f5c61efe"
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.dynatrace.example.AppWithOpenTelemetry",
+  "message" : "Inside the outer scope, after calling method",
+  "endOfBatch" : false,
+  "loggerFqcn" : "org.apache.logging.log4j.spi.AbstractLogger",
+  "threadId" : 1,
+  "threadPriority" : 5,
+  "trace.id" : "a5abda71c8de2e36df499cc12f8b2e8d",
+  "span.id" : "87aa73b5514f4963",
+  "dt.entity.process_group_instance" : "PROCESS_GROUP_INSTANCE-27204EFED3D8466E",
+  "dt.entity.host" : "HOST-A0FE2A03244B9728"
 }
 ```
 
-If `trace.id` and `span.id` cannot be resolved from the context, it might look like this (with
+If properties cannot be resolved from the context, it might look like this (with
 default properties set to the empty string, as configured above):
 
 ```json
@@ -141,7 +147,7 @@ default properties set to the empty string, as configured above):
 
 #### Details
 
-The `<Properties>` section sets up defaults for `span.id` and `trace.id`. It is possible to set a
+The `<Properties>` section sets up defaults for `span.id`, `trace.id`, as well as the Dynatrace metadata. It is possible to set a
 default by adding the respective string in the `<Property>` tag. Otherwise, when using the lookup
 notation (e.g., `$${ctx:span.id}`), if the property does not exist, the exported JSON will contain
 the line: `"span.id": "${ctx:span.id}"`, without the replaced values. When using the Properties
@@ -172,22 +178,24 @@ All available context values will be exported as a map of key value pairs named 
 
 ```json
 {
-  "instant": {
-    "epochSecond": 1629124622,
-    "nanoOfSecond": 675429690
+  "instant" : {
+    "epochSecond" : 1629820418,
+    "nanoOfSecond" : 385000000
   },
-  "thread": "main",
-  "level": "INFO",
-  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
-  "message": "Inside the outer scope, after calling method",
-  "endOfBatch": false,
-  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
-  "contextMap": {
-    "span.id": "c70b6cbb311836db",
-    "trace.id": "d74956afbc7c1c383314893e7d33497c"
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.dynatrace.example.AppWithOpenTelemetry",
+  "message" : "Inside the outer scope, after calling method",
+  "endOfBatch" : false,
+  "loggerFqcn" : "org.apache.logging.log4j.spi.AbstractLogger",
+  "contextMap" : {
+    "dt.entity.host" : "HOST-A0FE2A03244B9728",
+    "dt.entity.process_group_instance" : "PROCESS_GROUP_INSTANCE-27204EFED3D8466E",
+    "span.id" : "9b7a04e5f7b6d348",
+    "trace.id" : "cf0d4ed5b7242c8644cb463e736a756a"
   },
-  "threadId": 1,
-  "threadPriority": 5
+  "threadId" : 1,
+  "threadPriority" : 5
 }
 ```
 
@@ -203,8 +211,7 @@ configured using the `log4j2.xml` file.
         <!-- Log to the Console: -->
         <Console name="Console" target="SYSTEM_OUT">
             <!-- Specify the pattern layout in which log lines are serialized -->
-            <PatternLayout
-                    pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace.id=%X{trace.id} span.id=%X{span.id} - %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace.id=%X{trace.id} span.id=%X{span.id} dt.entity.process_group_instance=%X{dt.entity.process_group_instance} dt.entity.host=%X{dt.entity.host} - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
@@ -219,7 +226,7 @@ configured using the `log4j2.xml` file.
 This would lead to a log line like this:
 
 ```text
-16:40:19.751 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace.id=3fcf24c4948d8f7b72414a66a751d2f9 span.id=b9ab0e913a5ee2d0 - Inside the outer scope, after calling method
+17:55:59.598 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace.id=507172d8c54c56b62905f750af3acf19 span.id=7552f126d64a099d dt.entity.process_group_instance=PROCESS_GROUP_INSTANCE-27204EFED3D8466E dt.entity.host=HOST-A0FE2A03244B9728 - Inside the outer scope, after calling method
 ```
 
 #### Add all properties
@@ -238,7 +245,7 @@ could lead to a log line like this if the logger is called while an OpenTelemetr
 active:
 
 ```text
-16:42:24.168 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {span.id=69bc33e32e93652c, trace.id=3a44d41360d81f93a990885c666152b9} - Inside the outer scope, after calling method
+17:57:01.415 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.entity.host=HOST-A0FE2A03244B9728, dt.entity.process_group_instance=PROCESS_GROUP_INSTANCE-27204EFED3D8466E, span.id=ab39518a744bb7b7, trace.id=e9e9b2a543a60abba7585e5f0f1ad5ae} - Inside the outer scope, after calling method
 ```
 
 #### Access individual properties
