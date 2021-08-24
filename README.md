@@ -47,6 +47,14 @@ implementation("io.opentelemetry:opentelemetry-sdk:1.4.+")
 Furthermore, a Span Context has to be activated before the properties become available.
 See [the example project](./example_with_otel) for more details.
 
+## Properties available from Dynatrace metadata
+
+If there is a OneAgent running on the host, Dynatrace metadata is added to the context.
+Available properties are:
+
+- Host ID: `%X{dt.entity.host}` / `$${ctx:dt.entity.host}`
+- Process group instance: `%X{dt.entity.process_group_instance}` / `$${ctx:dt.entity.process_group_instance}`
+
 ## Configuration
 
 Configure your log output via the `log4j2.xml` file.
