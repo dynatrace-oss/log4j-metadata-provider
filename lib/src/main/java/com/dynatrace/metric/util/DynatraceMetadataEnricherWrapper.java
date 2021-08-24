@@ -18,11 +18,20 @@ package com.dynatrace.metric.util;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This wrapper class is used to access package-local functionality of the Dynatrace metadata
+ * utilities libraries, and is intended for internal use only. It is used to access Dynatrace
+ * metadata through the Dynatrace metrics util library.
+ */
 public class DynatraceMetadataEnricherWrapper {
 
     private DynatraceMetadataEnricherWrapper() {
     }
 
+    /**
+     * Get all Dynatrace metadata dimensions as a map of key-value pairs.
+     * @return a map containing all found Dynatrace metadata dimensions.
+     */
     public static Map<String, String> getDynatraceMetadata() {
         Map<String, String> dimensions = new HashMap<>();
         for (Dimension dim : DynatraceMetadataEnricher.getDynatraceMetadata()) {

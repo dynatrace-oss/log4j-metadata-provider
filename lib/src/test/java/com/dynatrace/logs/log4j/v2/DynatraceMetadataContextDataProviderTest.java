@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DynatraceMetadataContextDataProviderTest {
     private static Tracer tracer;
     private static final InMemorySpanExporter inMemorySpanExporter = InMemorySpanExporter.create();
-    private static final IContextDataRetriever openTelemetrySupport =
+    private static final ContextDataRetriever openTelemetrySupport =
             new OpenTelemetrySpanContextDataRetriever();
 
     @BeforeAll

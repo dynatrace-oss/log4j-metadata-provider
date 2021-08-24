@@ -18,7 +18,6 @@ package com.dynatrace.logs.log4j.v2;
 import com.dynatrace.metric.util.DynatraceMetadataEnricherWrapper;
 import org.apache.logging.log4j.core.util.ContextDataProvider;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -26,7 +25,7 @@ import java.util.logging.Logger;
 
 public class DynatraceMetadataContextDataProvider implements ContextDataProvider {
     private final Map<String, String> dynatraceMetadata;
-    private final IContextDataRetriever openTelemetryContextProvider;
+    private final ContextDataRetriever openTelemetryContextProvider;
 
     // using a log4j logger here can lead to an endless loop, therefore use java.util.logging.
     private static final Logger logger = Logger.getLogger(DynatraceMetadataContextDataProvider.class.getName());
@@ -39,23 +38,30 @@ public class DynatraceMetadataContextDataProvider implements ContextDataProvider
 
     // VisibleForTesting
     DynatraceMetadataContextDataProvider(
-            IContextDataRetriever openTelemetryContextProvider,
+            ContextDataRetriever openTelemetryContextProvider,
             Map<String, String> dynatraceMetadata
     ) {
         this.dynatraceMetadata = dynatraceMetadata;
         this.openTelemetryContextProvider = openTelemetryContextProvider;
     }
 
-    private static IContextDataRetriever tryLoadOpenTelemetryTraceSupport() {
+    /**
+     * Attempts to load OpenTelemetry support by reflection. The OpenTelemetryContextDataRetriever
+     * will crash upon instantiation if no dependency to the opentelemetry-api package is on the
+     * classpath.
+     *
+     * @return A {@link OpenTelemetrySpanContextDataRetriever} if the OpenTelemetry dependency is
+     * satisfied, and null otherwise.
+     */
+    private static ContextDataRetriever tryLoadOpenTelemetryTraceSupport() {
         try {
-            logger.info("trying to load OpenTelemetry support...");
+            logger.finer("trying to load OpenTelemetry support...");
             Class<?> clazz = Class.forName("com.dynatrace.logs.log4j.v2.OpenTelemetrySpanContextDataRetriever");
-            final IContextDataRetriever instance = (IContextDataRetriever) clazz.getDeclaredConstructor().newInstance();
-            logger.info("OpenTelemetry support successfully loaded.");
+            final ContextDataRetriever instance = (ContextDataRetriever) clazz.getDeclaredConstructor().newInstance();
+            logger.finer("OpenTelemetry support successfully loaded.");
             return instance;
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
-                InstantiationException | InvocationTargetException e) {
-            logger.warning("OpenTelemetry support could not be loaded. " +
+        } catch (Exception ignored) {
+            logger.fine("OpenTelemetry support could not be loaded. " +
                     "This is normal if no OpenTelemetry dependency is installed. " +
                     "Log Context will not be enriched with OpenTelemetry metadata.");
             return null;
@@ -67,7 +73,7 @@ public class DynatraceMetadataContextDataProvider implements ContextDataProvider
         Map<String, String> contextData = new HashMap<>();
 
         if (this.openTelemetryContextProvider != null) {
-            contextData.putAll(this.openTelemetryContextProvider.provideContextData());
+            contextData.putAll(this.openTelemetryContextProvider.retrieveContextData());
         }
 
         if (!dynatraceMetadata.isEmpty()) {

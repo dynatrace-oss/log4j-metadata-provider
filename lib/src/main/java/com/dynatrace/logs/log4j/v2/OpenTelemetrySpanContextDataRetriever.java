@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OpenTelemetrySpanContextDataRetriever implements IContextDataRetriever {
+class OpenTelemetrySpanContextDataRetriever implements ContextDataRetriever {
     public static final String TRACE_ID = "trace.id";
     public static final String SPAN_ID = "span.id";
 
@@ -31,8 +31,13 @@ public class OpenTelemetrySpanContextDataRetriever implements IContextDataRetrie
         final Span ignored = Span.getInvalid();
     }
 
+    /**
+     * Reads trace id and span id from the current span context.
+     * @return a map containing trace.id and span.id if a span context is active, or an empty map
+     * otherwise.
+     */
     @Override
-    public Map<String, String> provideContextData() {
+    public Map<String, String> retrieveContextData() {
         SpanContext spanContext = Span.current().getSpanContext();
         if (!spanContext.isValid()) {
             return Collections.emptyMap();
