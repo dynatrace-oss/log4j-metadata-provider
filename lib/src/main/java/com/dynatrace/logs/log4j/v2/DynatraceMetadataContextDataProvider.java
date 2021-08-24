@@ -31,7 +31,6 @@ public class DynatraceMetadataContextDataProvider implements ContextDataProvider
     // using a log4j logger here can lead to an endless loop, therefore use java.util.logging.
     private static final Logger logger = Logger.getLogger(DynatraceMetadataContextDataProvider.class.getName());
 
-
     // export all metadata by default
     public DynatraceMetadataContextDataProvider() {
         this(DynatraceMetadataContextDataProvider.tryLoadOpenTelemetryTraceSupport(),

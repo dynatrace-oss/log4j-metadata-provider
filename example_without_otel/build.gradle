@@ -31,6 +31,6 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
     implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
 
-    // dependency to the Dynatrace Metadata Context exporter.
+    // Dependency to the Dynatrace Metadata ContextDataProvider.
     runtimeOnly(project(':lib'))
 }

@@ -9,7 +9,7 @@ on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.htm
 
 * Java 8 or later
 * Log4j 2, version 2.13.2 or later
-* OpenTelemetry (tested with 0.17.0, but we suggest using the latest version)
+* OpenTelemetry (tested with 1.4, but we suggest using the latest 1.+ version)
 
 ## Installation
 
@@ -25,13 +25,13 @@ runtimeOnly("log4j-metadata-provider:log4j2")
 ```
 
 Then, add a `log4j2.xml` configuration file to the classpath of your project (
-e.g. `src/main/resources`, as shown in the example applications [here](example_with_otel)
-and [here](example_without_otel)). There, the log output format can be configured, for example
+e.g. `src/main/resources`, as shown in the example applications [here](./example_with_otel/)
+and [here](./example_without_otel/)). There, the log output format can be configured, for example
 [as JSON](#json-based-logging) or in [a line format](#line-based-logging).
 
 ## Properties available from OpenTelemetry
 
-For OpenTelemetry, Trace ID and Span ID are read from the current span context. They can be used in
+For OpenTelemetry, Trace ID and Span ID are read from the currently active span. They can be used in
 the pattern using the `%X{var_name}` or `$${ctx:var_name}` syntax:
 
 - Trace Id: `%X{trace.id}` / `$${ctx:trace.id}`
@@ -75,8 +75,7 @@ Then, the JSON export can be configured via the `log4j2.xml` file:
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <JsonLayout>
-                <!-- its also possible to specify key value pairs explicitly. They will be added to the json object (at the top level). -->
-                <!-- If the key is not present, the field will have the literal string "${ctx:trace.id}" or the default set in the Properties tag above. -->
+                <!-- It's also possible to specify key value pairs explicitly. They will be added to the JSON object (at the top level). -->
                 <KeyValuePair key="trace.id" value="$${ctx:trace.id}"/>
                 <KeyValuePair key="span.id" value="$${ctx:span.id}"/>
             </JsonLayout>
@@ -138,22 +137,12 @@ The `<Properties>` section sets up defaults for `span.id` and `trace.id`. It is 
 default by adding the respective string in the `<Property>` tag. Otherwise, when using the lookup
 notation (e.g., `$${ctx:span.id}`), if the property does not exist, the exported JSON will contain
 the line: `"span.id": "${ctx:span.id}"`, without the replaced values. When using the Properties
-section as shown, if the looked up property is not in the context, it will be omitted in the
+section as shown above, the default is set to an empty string and if the looked up property is not in the context, it will be omitted in the
 exported JSON. An example of missing `trace.id` and `span.id` with no default might look like this:
 
 ```json
 {
-  "instant": {
-    "epochSecond": 1629124318,
-    "nanoOfSecond": 936433435
-  },
-  "thread": "main",
-  "level": "INFO",
-  "loggerName": "com.dynatrace.example.AppWithOpenTelemetry",
-  "message": "Outside the scope",
-  "endOfBatch": false,
-  "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger",
-  "threadId": 1,
+  ...
   "threadPriority": 5,
   "trace.id": "${ctx:trace.id}",
   "span.id": "${ctx:span.id}"

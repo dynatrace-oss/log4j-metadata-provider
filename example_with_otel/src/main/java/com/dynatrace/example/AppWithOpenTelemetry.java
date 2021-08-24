@@ -41,7 +41,7 @@ public class AppWithOpenTelemetry {
     }
 
     public static void main(String[] args) {
-        // use the LoggingSpanExporter provided here in order to log spans (uses java.util.logging).
+        // Use the LoggingSpanExporter provided by OTel in order to log spans (uses java.util.logging).
         SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
                 .addSpanProcessor(BatchSpanProcessor.builder(new LoggingSpanExporter()).build())
                 .build();
@@ -52,15 +52,14 @@ public class AppWithOpenTelemetry {
                 .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
                 .buildAndRegisterGlobal();
 
-        // Acquire a Tracer:
+        // Create a span:
         Span span = getTracer()
                 .spanBuilder("span1")
                 .setAttribute("span_att", "att_value")
                 .startSpan();
 
         logger.info("Before the span is set as current");
-        // Set the span as the current scope, otherwise Span context information cannot be retrieved
-        // by the log4j exporter.
+        // Make it the active span so it's picked up by the Log4j context data provider.
         try (Scope ignored = span.makeCurrent()) {
             logger.info("Inside the outer scope, before calling method");
             methodGettingParentSpanFromCurrentContext();
