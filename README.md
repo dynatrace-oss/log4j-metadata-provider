@@ -49,11 +49,14 @@ See [the example project](./example_with_otel) for more details.
 
 ## Properties available from Dynatrace OneAgent
 
-If there is a OneAgent running on the host, [Dynatrace metadata](https://www.dynatrace.com/support/help/how-to-use-dynatrace/metrics/metric-ingestion/ingestion-methods/enrich-metrics/) is added to the context.
+If there is a OneAgent running on the host, Dynatrace metadata is added to the context.
 Available properties are:
 
 - Host ID: `%X{dt.entity.host}` / `$${ctx:dt.entity.host}`
 - Process group instance: `%X{dt.entity.process_group_instance}` / `$${ctx:dt.entity.process_group_instance}`
+
+See the [Dynatrace documentation](https://www.dynatrace.com/support/help/how-to-use-dynatrace/metrics/metric-ingestion/ingestion-methods/enrich-metrics/)
+for more information on the underlying feature used by this library and its limitations.
 
 ## Configuration
 
@@ -64,7 +67,7 @@ Configure your log output via the `log4j2.xml` file.
 When exporting logs as JSON, an additional dependency to Jackson databind is required:
 
 ```groovy
-runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.4')
+runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.+')
 ```
 
 Then, the JSON export can be configured via the `log4j2.xml` file:
