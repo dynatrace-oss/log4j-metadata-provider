@@ -7,8 +7,12 @@
         <Property name="trace.id">
             <!-- trace.id default. Leave empty to only add the trace.id property to the json if it exists. -->
         </Property>
-        <Property name="dt.entity.process_group_instance"></Property>
-        <Property name="dt.entity.host"></Property>
+        <Property name="dt.entity.process_group_instance">
+            <!-- dt.entity.process_group_instance default. Leave empty to only add the dt.entity.process_group_instance property to the json if it exists. -->
+        </Property>
+        <Property name="dt.entity.host">
+            <!-- dt.entity.host default. Leave empty to only add the dt.entity.host property to the json if it exists. -->
+        </Property>
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
