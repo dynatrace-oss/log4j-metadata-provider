@@ -95,8 +95,8 @@ class DynatraceMetadataContextDataProviderTest {
         assertThat(finishedSpanItems).hasSize(1);
 
         Map<String, String> expected = new HashMap<>();
-        expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
-        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, finishedSpanItems.get(0).getTraceId());
+        expected.put("dt.span_id", finishedSpanItems.get(0).getSpanId());
+        expected.put("dt.trace_id", finishedSpanItems.get(0).getTraceId());
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
     }
@@ -140,8 +140,8 @@ class DynatraceMetadataContextDataProviderTest {
         assertThat(finishedSpanItems).hasSize(1);
 
         Map<String, String> expected = new HashMap<>();
-        expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
-        expected.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, finishedSpanItems.get(0).getTraceId());
+        expected.put("dt.span_id", finishedSpanItems.get(0).getSpanId());
+        expected.put("dt.trace_id", finishedSpanItems.get(0).getTraceId());
         expected.putAll(dynatraceMetadata);
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
@@ -150,7 +150,7 @@ class DynatraceMetadataContextDataProviderTest {
     @Test
     void testDynatraceMetadataWouldOverwriteOpenTelemetryIfTheySharedKeys() {
         Map<String, String> dynatraceMetadata = new HashMap<>();
-        dynatraceMetadata.put(OpenTelemetrySpanContextDataRetriever.TRACE_ID, "some_value");
+        dynatraceMetadata.put("dt.trace_id", "some_value");
         dynatraceMetadata.put("dt.some.meta", "some_other_value");
 
         DynatraceMetadataContextDataProvider exporter = new DynatraceMetadataContextDataProvider(openTelemetrySupport, dynatraceMetadata);
@@ -167,11 +167,11 @@ class DynatraceMetadataContextDataProviderTest {
         assertThat(finishedSpanItems).hasSize(1);
 
         Map<String, String> expected = new HashMap<>();
-        expected.put(OpenTelemetrySpanContextDataRetriever.SPAN_ID, finishedSpanItems.get(0).getSpanId());
+        expected.put("dt.span_id", finishedSpanItems.get(0).getSpanId());
         expected.putAll(dynatraceMetadata);
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
         // This is already asserted by the above, but makes it more clear to humans.
-        assertThat(contextData.get(OpenTelemetrySpanContextDataRetriever.TRACE_ID)).isEqualTo("some_value");
+        assertThat(contextData.get("dt.trace_id")).isEqualTo("some_value");
     }
 }
