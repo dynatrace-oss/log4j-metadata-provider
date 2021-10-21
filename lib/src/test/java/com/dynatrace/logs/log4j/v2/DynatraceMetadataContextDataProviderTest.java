@@ -172,6 +172,6 @@ class DynatraceMetadataContextDataProviderTest {
 
         assertThat(contextData).containsExactlyInAnyOrderEntriesOf(expected);
         // This is already asserted by the above, but makes it more clear to humans.
-        assertThat(contextData.get("dt.trace_id")).isEqualTo("some_value");
+        assertThat(contextData).containsEntry("dt.trace_id", "some_value");
     }
 }
