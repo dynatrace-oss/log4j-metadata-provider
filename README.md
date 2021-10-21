@@ -283,10 +283,12 @@ ignored.
 
 ### Example with OpenTelemetry
 
-This [sample](./example_with_otel) demonstrates how both Dynatrace and OpenTelemetry metadata are added to the logs. 
-Check out the `log4j2.xml` to see how the properties are configured. 
+This [example](./example_with_otel) demonstrates how both Dynatrace and OpenTelemetry metadata are added to the logs. 
+Check out the `log4j2.xml` configuration file to see how the properties are configured.
+Dynatrace metadata is only added when a OneAgent is running on the host.
 
 ### Example without OpenTelemetry
 
-This [sample](./example_without_otel) demonstrates how the logs are still enriched with Dynatrace metadata,
-even when OpenTelemetry is not installed. (Given an OneAgent is running in the host).
+This [example](./example_without_otel) demonstrates how the logs are still enriched with Dynatrace metadata,
+even when OpenTelemetry is not installed in the application.
+Dynatrace metadata is only added when a OneAgent is running on the host.
