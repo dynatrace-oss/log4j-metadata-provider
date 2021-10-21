@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 class OpenTelemetrySpanContextDataRetriever implements ContextDataRetriever {
-    public static final String TRACE_ID = "trace.id";
-    public static final String SPAN_ID = "span.id";
+    private static final String TRACE_ID_KEY = "dt.trace_id";
+    private static final String SPAN_ID_KEY = "dt.span_id";
 
     public OpenTelemetrySpanContextDataRetriever() {
         // this is required, so instantiating this class throws if OpenTelemetry is not installed.
@@ -33,7 +33,7 @@ class OpenTelemetrySpanContextDataRetriever implements ContextDataRetriever {
 
     /**
      * Reads trace id and span id from the current span context.
-     * @return a map containing trace.id and span.id if a span context is active, or an empty map
+     * @return a map containing dt.span_id and dt.trace_id if a span context is active, or an empty map
      * otherwise.
      */
     @Override
@@ -44,8 +44,8 @@ class OpenTelemetrySpanContextDataRetriever implements ContextDataRetriever {
         }
 
         Map<String, String> contextData = new HashMap<>();
-        contextData.put(TRACE_ID, spanContext.getTraceId());
-        contextData.put(SPAN_ID, spanContext.getSpanId());
+        contextData.put(TRACE_ID_KEY, spanContext.getTraceId());
+        contextData.put(SPAN_ID_KEY, spanContext.getSpanId());
 
         return contextData;
     }

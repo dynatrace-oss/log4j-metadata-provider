@@ -34,8 +34,8 @@ and [here](./example_without_otel/)). There, the log output format can be config
 For OpenTelemetry, Trace ID and Span ID are read from the currently active span. They can be used in
 the pattern using the `%X{var_name}` or `$${ctx:var_name}` syntax:
 
-- Trace Id: `%X{trace.id}` / `$${ctx:trace.id}`
-- Span Id: `%X{span.id}` / `$${ctx:span.id}`
+- Trace Id: `%X{dt.trace_id}` / `$${ctx:dt.trace_id}`
+- Span Id: `%X{dt.span_id}` / `$${ctx:dt.span_id}`
 
 In order to get access to these properties, a dependency to the OpenTelemetry project is required:
 
@@ -76,11 +76,11 @@ Then, the JSON export can be configured via the `log4j2.xml` file:
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
-        <Property name="span.id">
-            <!-- span.id default. Leave empty to only add the span.id property to the json if it exists. -->
+        <Property name="dt.trace_id">
+            <!-- dt.trace_id default. Leave empty to only add the dt.trace_id property to the json if it exists. -->
         </Property>
-        <Property name="trace.id">
-            <!-- trace.id default. Leave empty to only add the trace.id property to the json if it exists. -->
+        <Property name="dt.span_id">
+            <!-- dt.span_id default. Leave empty to only add the dt.span_id property to the json if it exists. -->
         </Property>
         <Property name="dt.entity.process_group_instance"></Property>
         <Property name="dt.entity.host"></Property>
@@ -89,8 +89,8 @@ Then, the JSON export can be configured via the `log4j2.xml` file:
         <Console name="Console" target="SYSTEM_OUT">
             <JsonLayout>
                 <!-- It's also possible to specify key value pairs explicitly. They will be added to the JSON object (at the top level). -->
-                <KeyValuePair key="trace.id" value="$${ctx:trace.id}"/>
-                <KeyValuePair key="span.id" value="$${ctx:span.id}"/>
+                <KeyValuePair key="dt.trace_id" value="$${ctx:dt.trace_id}"/>
+                <KeyValuePair key="dt.span_id" value="$${ctx:dt.span_id}"/>
                 <KeyValuePair key="dt.entity.process_group_instance" value="$${ctx:dt.entity.process_group_instance}"/>
                 <KeyValuePair key="dt.entity.host" value="$${ctx:dt.entity.host}"/>
             </JsonLayout>
@@ -121,8 +121,8 @@ JSON like this:
   "loggerFqcn" : "org.apache.logging.log4j.spi.AbstractLogger",
   "threadId" : 1,
   "threadPriority" : 5,
-  "trace.id" : "a5abda71c8de2e36df499cc12f8b2e8d",
-  "span.id" : "87aa73b5514f4963",
+  "dt.trace_id" : "a5abda71c8de2e36df499cc12f8b2e8d",
+  "dt.span_id" : "87aa73b5514f4963",
   "dt.entity.process_group_instance" : "PROCESS_GROUP_INSTANCE-27204EFED3D8466E",
   "dt.entity.host" : "HOST-A0FE2A03244B9728"
 }
@@ -150,19 +150,19 @@ default properties set to the empty string, as configured above):
 
 #### Details
 
-The `<Properties>` section sets up defaults for `span.id`, `trace.id`, as well as the Dynatrace metadata. It is possible to set a
+The `<Properties>` section sets up defaults for `dt.trace_id`, `dt.span_id`, as well as the Dynatrace metadata. It is possible to set a
 default by adding the respective string in the `<Property>` tag. Otherwise, when using the lookup
-notation (e.g., `$${ctx:span.id}`), if the property does not exist, the exported JSON will contain
-the line: `"span.id": "${ctx:span.id}"`, without the replaced values. When using the Properties
+notation (e.g., `$${ctx:dt.span_id}`), if the property does not exist, the exported JSON will contain
+the line: `"dt.span_id": "${ctx:dt.span_id}"`, without the replaced values. When using the Properties
 section as shown above, the default is set to an empty string and if the looked up property is not in the context, it will be omitted in the
-exported JSON. An example of missing `trace.id` and `span.id` with no default might look like this:
+exported JSON. An example of missing `dt.trace_id` and `dt.span_id` with no default might look like this:
 
 ```json
 {
   ...
   "threadPriority": 5,
-  "trace.id": "${ctx:trace.id}",
-  "span.id": "${ctx:span.id}"
+  "dt.trace_id": "${ctx:dt.trace_id}",
+  "dt.span_id": "${ctx:dt.span_id}"
 }
 ```
 
@@ -194,8 +194,8 @@ All available context values will be exported as a map of key value pairs named 
   "contextMap" : {
     "dt.entity.host" : "HOST-A0FE2A03244B9728",
     "dt.entity.process_group_instance" : "PROCESS_GROUP_INSTANCE-27204EFED3D8466E",
-    "span.id" : "9b7a04e5f7b6d348",
-    "trace.id" : "cf0d4ed5b7242c8644cb463e736a756a"
+    "dt.trace_id" : "cf0d4ed5b7242c8644cb463e736a756a",
+    "dt.span_id" : "9b7a04e5f7b6d348"
   },
   "threadId" : 1,
   "threadPriority" : 5
@@ -214,7 +214,7 @@ configured using the `log4j2.xml` file.
         <!-- Log to the Console: -->
         <Console name="Console" target="SYSTEM_OUT">
             <!-- Specify the pattern layout in which log lines are serialized -->
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace.id=%X{trace.id} span.id=%X{span.id} dt.entity.process_group_instance=%X{dt.entity.process_group_instance} dt.entity.host=%X{dt.entity.host} - %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} dt.trace_id=%X{dt.trace_id} dt.span_id=%X{dt.span_id} dt.entity.process_group_instance=%X{dt.entity.process_group_instance} dt.entity.host=%X{dt.entity.host} - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
@@ -229,7 +229,7 @@ configured using the `log4j2.xml` file.
 This would lead to a log line like this:
 
 ```text
-17:55:59.598 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace.id=507172d8c54c56b62905f750af3acf19 span.id=7552f126d64a099d dt.entity.process_group_instance=PROCESS_GROUP_INSTANCE-27204EFED3D8466E dt.entity.host=HOST-A0FE2A03244B9728 - Inside the outer scope, after calling method
+17:55:59.598 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry dt.trace_id=507172d8c54c56b62905f750af3acf19 dt.span_id=7552f126d64a099d dt.entity.process_group_instance=PROCESS_GROUP_INSTANCE-27204EFED3D8466E dt.entity.host=HOST-A0FE2A03244B9728 - Inside the outer scope, after calling method
 ```
 
 #### Add all properties
@@ -248,7 +248,7 @@ could lead to a log line like this if the logger is called while an OpenTelemetr
 active:
 
 ```text
-17:57:01.415 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.entity.host=HOST-A0FE2A03244B9728, dt.entity.process_group_instance=PROCESS_GROUP_INSTANCE-27204EFED3D8466E, span.id=ab39518a744bb7b7, trace.id=e9e9b2a543a60abba7585e5f0f1ad5ae} - Inside the outer scope, after calling method
+17:57:01.415 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry {dt.entity.host=HOST-A0FE2A03244B9728, dt.entity.process_group_instance=PROCESS_GROUP_INSTANCE-27204EFED3D8466E, dt.span_id=ab39518a744bb7b7, dt.trace_id=e9e9b2a543a60abba7585e5f0f1ad5ae} - Inside the outer scope, after calling method
 ```
 
 #### Access individual properties
@@ -259,24 +259,21 @@ in the [Log4j documentation](https://logging.apache.org/log4j/2.x/manual/lookups
 
 ```xml
 
-<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} trace.id=%X{trace.id} - %msg%n"/>
+<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} dt.trace_id=%X{dt.trace_id} - %msg%n"/>
 ```
 
 Would lead to a log line like this:
 
 ```text
-16:46:02.324 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry trace.id=eac920d37a4b60cc93a4ed86448ab66f - Inside the outer scope, after calling method
+16:46:02.324 [main] INFO  com.dynatrace.example.AppWithOpenTelemetry dt.trace_id=eac920d37a4b60cc93a4ed86448ab66f - Inside the outer scope, after calling method
 ```
 
-Note, that in this example, the property name string (`trace.id`) is explicitly specified in front
-of the `%X{trace.id}` directive. Otherwise, only the property value would be printed.
+Note, that in this example, the property name string (`dt.trace_id`) is explicitly specified in front
+of the `%X{dt.trace_id}` directive. Otherwise, only the property value would be printed.
 
 ## Examples
 
-There are two examples, [one with OpenTelemetry](./example_with_otel) and
-[one without](./example_without_otel).
-
-The examples use two different logging frameworks: The log4j context provider uses
+> The examples use two different logging frameworks: The log4j context provider uses
 `java.util.logging`, as self-referencing `log4j` can lead to difficulties configuring as well as
 endless loops upon setting up. The OpenTelemetry example uses a special kind of trace exporter,
 which also relies on `java.util.logging`. This exporter is used, since for the purpose of this
@@ -284,3 +281,14 @@ example, there is no backend required. Therefore, the span information might be 
 times, but formatted differently. If using only the log4j output, these additional logs can be
 ignored.
 
+### Example with OpenTelemetry
+
+This [example](./example_with_otel) demonstrates how both Dynatrace and OpenTelemetry metadata are added to the logs. 
+Check out the `log4j2.xml` configuration file to see how the properties are configured.
+Dynatrace metadata is only added when a OneAgent is running on the host.
+
+### Example without OpenTelemetry
+
+This [example](./example_without_otel) demonstrates how the logs are still enriched with Dynatrace metadata,
+even when OpenTelemetry is not installed in the application.
+Dynatrace metadata is only added when a OneAgent is running on the host.
