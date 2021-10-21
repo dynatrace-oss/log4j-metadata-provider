@@ -273,10 +273,7 @@ of the `%X{dt.trace_id}` directive. Otherwise, only the property value would be 
 
 ## Examples
 
-There are two examples, [one with OpenTelemetry](./example_with_otel) and
-[one without](./example_without_otel).
-
-The examples use two different logging frameworks: The log4j context provider uses
+> The examples use two different logging frameworks: The log4j context provider uses
 `java.util.logging`, as self-referencing `log4j` can lead to difficulties configuring as well as
 endless loops upon setting up. The OpenTelemetry example uses a special kind of trace exporter,
 which also relies on `java.util.logging`. This exporter is used, since for the purpose of this
@@ -284,3 +281,12 @@ example, there is no backend required. Therefore, the span information might be 
 times, but formatted differently. If using only the log4j output, these additional logs can be
 ignored.
 
+### Example with OpenTelemetry
+
+This [sample](./example_with_otel) demonstrates how both Dynatrace and OpenTelemetry metadata are added to the logs. 
+Check out the `log4j2.xml` to see how the properties are configured. 
+
+### Example without OpenTelemetry
+
+This [sample](./example_without_otel) demonstrates how the logs are still enriched with Dynatrace metadata,
+even when OpenTelemetry is not installed. (Given an OneAgent is running in the host).
