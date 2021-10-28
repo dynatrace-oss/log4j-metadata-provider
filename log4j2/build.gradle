@@ -20,7 +20,7 @@ repositories {
     mavenCentral()
 }
 
-group = 'com.dynatrace.logs.log4j'
+group = 'com.dynatrace.logs.log4j-metadata-provider'
 version = '0.1.0'
 
 def otelVersion = '1.+'

@@ -1,6 +1,6 @@
 rootProject.name = 'log4j-metadata-provider'
 include(
-        ":lib",
+        ":log4j2",
         ":example_with_otel",
         ":example_without_otel",
 )
