@@ -13,7 +13,7 @@
  *
  */
 
-package com.dynatrace.logs.log4j.v2;
+package com.dynatrace.logs.log4j2;
 
 import java.util.Map;
 

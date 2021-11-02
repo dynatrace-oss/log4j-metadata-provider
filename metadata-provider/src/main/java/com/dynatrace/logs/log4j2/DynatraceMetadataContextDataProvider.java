@@ -13,7 +13,7 @@
  *
  */
 
-package com.dynatrace.logs.log4j.v2;
+package com.dynatrace.logs.log4j2;
 
 import com.dynatrace.metric.util.DynatraceMetadataEnricherWrapper;
 import org.apache.logging.log4j.core.util.ContextDataProvider;
@@ -56,7 +56,7 @@ public class DynatraceMetadataContextDataProvider implements ContextDataProvider
     private static ContextDataRetriever tryLoadOpenTelemetryTraceSupport() {
         try {
             logger.finer("trying to load OpenTelemetry support...");
-            Class<?> clazz = Class.forName("com.dynatrace.logs.log4j.v2.OpenTelemetrySpanContextDataRetriever");
+            Class<?> clazz = Class.forName("com.dynatrace.logs.log4j2.OpenTelemetrySpanContextDataRetriever");
             final ContextDataRetriever instance = (ContextDataRetriever) clazz.getDeclaredConstructor().newInstance();
             logger.finer("OpenTelemetry support successfully loaded.");
             return instance;

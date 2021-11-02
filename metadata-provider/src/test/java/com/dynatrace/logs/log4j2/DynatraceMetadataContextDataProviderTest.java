@@ -13,7 +13,7 @@
  *
  */
 
-package com.dynatrace.logs.log4j.v2;
+package com.dynatrace.logs.log4j2;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
