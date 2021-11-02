@@ -42,7 +42,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}")
 
     // Dependency to the Dynatrace Metadata ContextDataProvider.
-    runtimeOnly(project(':log4j2'))
+    runtimeOnly(project(':metadata-provider'))
 
     // Required for Log4j JSON output. Can be removed if not logging to JSON.
     runtimeOnly('com.fasterxml.jackson.core:jackson-databind:2.12.+')

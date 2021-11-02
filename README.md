@@ -21,7 +21,7 @@ In order to add Metadata to Log4j log lines, include the following dependencies 
 implementation("org.apache.logging.log4j:log4j-api:2.14.1")
 implementation("org.apache.logging.log4j:log4j-core:2.14.1")
 
-runtimeOnly("com.dynatrace.logs.log4j-metadata-provider:log4j2:0.2.0")
+runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.0")
 ```
 
 As this library is not released, a source dependency is required.
@@ -31,7 +31,7 @@ To set it up, add the following to your `settings.gradle`:
 ```groovy
 sourceControl {
     gitRepository("https://github.com/dynatrace-oss/log4j-metadata-provider.git") {
-        producesModule("com.dynatrace.logs.log4j-metadata-provider:log4j2")
+        producesModule("com.dynatrace.logs.log4j2:metadata-provider")
     }
 }
 ```
