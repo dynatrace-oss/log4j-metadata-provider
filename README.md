@@ -13,15 +13,27 @@ on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.htm
 
 ## Installation
 
-In order to add Metadata to Log4j log lines, include the following dependencies:
+In order to add Metadata to Log4j log lines, include the following dependencies to your `build.gradle`:
 
 ```groovy
 // Depend on log4j itself, this is probably already in your project.
-// The mechanism that is used in this libraray works from v2.13.2
+// The mechanism that is used in this library works from v2.13.2
 implementation("org.apache.logging.log4j:log4j-api:2.14.1")
 implementation("org.apache.logging.log4j:log4j-core:2.14.1")
 
-runtimeOnly("log4j-metadata-provider:log4j2")
+runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.0")
+```
+
+As this library is not published on Maven Central, a source dependency is required.
+This will download the required code from Github.
+To set it up, add the following to your `settings.gradle`:
+
+```groovy
+sourceControl {
+    gitRepository("https://github.com/dynatrace-oss/log4j-metadata-provider.git") {
+        producesModule("com.dynatrace.logs.log4j2:metadata-provider")
+    }
+}
 ```
 
 Then, add a `log4j2.xml` configuration file to the classpath of your project (
