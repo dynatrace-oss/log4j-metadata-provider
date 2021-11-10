@@ -24,7 +24,7 @@ implementation("org.apache.logging.log4j:log4j-core:2.14.1")
 runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.0")
 ```
 
-As this library is not released, a source dependency is required.
+As this library is not published on Maven Central, a source dependency is required.
 This will download the required code from Github.
 To set it up, add the following to your `settings.gradle`:
 
