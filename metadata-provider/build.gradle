@@ -25,8 +25,9 @@ version = '0.2.0'
 
 def otelVersion = '1.+'
 
-// ContextDataProvider was introduced in log42 v2.13.2.
-// Therefore, use any version from (and including) 2.13.2 can be used
+// ContextDataProvider was introduced in log4j v2.13.2.
+// Therefore, any version from (and including) 2.13.2 can be used.
+// If you use any version <= 2.14.1 pay attention to the Log4j vulnerability CVE-2021-44228 and its mitigation.
 def log4jVersion = '[2.13.2, )'
 
 dependencies {
