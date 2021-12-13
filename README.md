@@ -9,6 +9,7 @@ on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.htm
 
 * Java 8 or later
 * Log4j 2, version 2.13.2 or later
+  * ⚠ If you use any version <= 2.14.1 pay attention to the Log4j vulnerability [CVE-2021-44228](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228) and its mitigation, ideally update to 2.15.+
 * OpenTelemetry (tested with 1.4, but we suggest using the latest 1.+ version)
 
 ## Installation
@@ -17,11 +18,12 @@ In order to add Metadata to Log4j log lines, include the following dependencies 
 
 ```groovy
 // Depend on log4j itself, this is probably already in your project.
-// The mechanism that is used in this library works from v2.13.2
-implementation("org.apache.logging.log4j:log4j-api:2.14.1")
-implementation("org.apache.logging.log4j:log4j-core:2.14.1")
+// The mechanism that is used in this library works from v2.13.2.
+// If you use any version <= 2.14.1 pay attention to the Log4j vulnerability CVE-2021-44228 and its mitigation.
+implementation("org.apache.logging.log4j:log4j-api:2.15.+")
+implementation("org.apache.logging.log4j:log4j-core:2.15.+")
 
-runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.0")
+runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.1")
 ```
 
 As this library is not published on Maven Central, a source dependency is required.
@@ -295,7 +297,7 @@ ignored.
 
 ### Example with OpenTelemetry
 
-This [example](./example_with_otel) demonstrates how both Dynatrace and OpenTelemetry metadata are added to the logs. 
+This [example](./example_with_otel) demonstrates how both Dynatrace and OpenTelemetry metadata are added to the logs.
 Check out the `log4j2.xml` configuration file to see how the properties are configured.
 Dynatrace metadata is only added when a OneAgent is running on the host.
 

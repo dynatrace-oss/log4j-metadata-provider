@@ -6,3 +6,7 @@
 
 # IntelliJ
 .idea/
+
+### Java ###
+# Compiled class file
+*.class
