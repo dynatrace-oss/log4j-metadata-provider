@@ -25,7 +25,7 @@ mainClassName = 'com.dynatrace.example.AppWithOpenTelemetry'
 version = "0.0.1"
 
 def otelVersion = '1.4.+'
-def log4jVersion = "2.14.+"
+def log4jVersion = "2.15.+"
 
 dependencies {
     // Log4j dependencies
