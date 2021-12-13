@@ -23,7 +23,7 @@ In order to add Metadata to Log4j log lines, include the following dependencies 
 implementation("org.apache.logging.log4j:log4j-api:2.15.+")
 implementation("org.apache.logging.log4j:log4j-core:2.15.+")
 
-runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.0")
+runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.1")
 ```
 
 As this library is not published on Maven Central, a source dependency is required.
