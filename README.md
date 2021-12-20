@@ -9,7 +9,8 @@ on [the Log4j website](https://logging.apache.org/log4j/2.x/manual/extending.htm
 
 * Java 8 or later
 * Log4j 2, version 2.13.2 or later
-  * ⚠ If you use any version <= 2.14.1 pay attention to the Log4j vulnerability [CVE-2021-44228](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228) and its mitigation, ideally update to 2.15.+
+  * ⚠ If you use any version < 2.17.0 pay attention to the [Log4j vulnerabilities](https://logging.apache.org/log4j/2.x/security.html)
+  reported in previous versions and their mitigation, ideally update to a version >= 2.17.0
 * OpenTelemetry (tested with 1.4, but we suggest using the latest 1.+ version)
 
 ## Installation
@@ -19,9 +20,9 @@ In order to add Metadata to Log4j log lines, include the following dependencies 
 ```groovy
 // Depend on log4j itself, this is probably already in your project.
 // The mechanism that is used in this library works from v2.13.2.
-// If you use any version <= 2.14.1 pay attention to the Log4j vulnerability CVE-2021-44228 and its mitigation.
-implementation("org.apache.logging.log4j:log4j-api:2.15.+")
-implementation("org.apache.logging.log4j:log4j-core:2.15.+")
+// If you use any version < 2.17.0 pay attention to the Log4j vulnerabilities reported in previous versions and their mitigation.
+implementation("org.apache.logging.log4j:log4j-api:2.17.+")
+implementation("org.apache.logging.log4j:log4j-core:2.17.+")
 
 runtimeOnly("com.dynatrace.logs.log4j2:metadata-provider:0.2.1")
 ```
