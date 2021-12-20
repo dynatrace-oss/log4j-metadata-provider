@@ -24,7 +24,7 @@ repositories {
 mainClassName = 'com.dynatrace.example.AppWithoutOpenTelemetry'
 version = "0.0.1"
 
-def log4jVersion = "2.15.+"
+def log4jVersion = "2.17.+"
 
 dependencies {
     // Log4j dependencies
